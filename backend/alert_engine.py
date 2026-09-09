@@ -24,19 +24,16 @@ class AlertEngine:
         return "MONITORING"
 
     def determine_priority(self, event):
-        prob = event.get("ml_probability", 0)
         severity = event.get("severity")
-        dev = event.get("frp_deviation", 1.0)
-        near_ind = event.get("nearest_facility_name", "None") != "None"
+        frp = event.get("frp", 0)
+        classification = event.get("classification", "")
 
-        if prob >= 0.80 and severity in ["HIGH", "CRITICAL"]:
+        if severity == "CRITICAL" or classification in ["Industrial Fire", "Wildfire"]:
             return "P1"
-        if prob >= 0.65 and severity == "HIGH":
+        if severity == "HIGH" or frp >= 100:
             return "P2"
-        if dev >= 2.5 and near_ind:
+        if severity == "WATCH" or frp >= 30:
             return "P3"
-        if not near_ind:
-            return "P5"
         return "P4"
 
     def get_nearest_responders(self, lat, lon):

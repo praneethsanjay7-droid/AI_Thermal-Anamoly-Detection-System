@@ -34,10 +34,14 @@ def get_demo_events():
         # Recalculate basic emissions directly for demo realism
         co2 = round((e['frp'] * 0.37 * duration * 3.6) / 1000.0, 2)
         
-        severity = "NORMAL"
-        if deviation > 4.0 or e['frp'] > 600: severity = "CRITICAL"
-        elif deviation > 2.5 or e['frp'] > 300: severity = "HIGH"
-        elif deviation > 1.5: severity = "WATCH"
+        if e['class'] in ['Industrial Fire', 'Wildfire']:
+            severity = "CRITICAL"
+        elif e['frp'] >= 100:
+            severity = "HIGH"
+        elif e['frp'] >= 30:
+            severity = "WATCH"
+        else:
+            severity = "NORMAL"
 
         prob = round(random.uniform(0.65, 0.99), 2)
 

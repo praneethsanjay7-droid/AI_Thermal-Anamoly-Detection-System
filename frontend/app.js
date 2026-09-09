@@ -147,11 +147,11 @@ const APP = {
   },
 
   updateStatCards: function() {
-    document.getElementById('stat-total').innerText = state.stats.total || state.events.length || 0;
-    document.getElementById('stat-active').innerText = state.stats.active || state.events.filter(e => e.status === 'active').length || 0;
-    const p1Count = state.stats.p1 || state.alerts.filter(a => a.priority === 'P1').length || 0;
+    document.getElementById('stat-total').innerText = state.stats.total_events || state.events.length || 0;
+    document.getElementById('stat-active').innerText = state.stats.active_fires || state.events.filter(e => e.classification === 'Industrial Fire').length || 0;
+    const p1Count = state.stats.p1_alerts || state.alerts.filter(a => a.priority === 'P1').length || 0;
     document.getElementById('stat-alerts').innerText = p1Count;
-    document.getElementById('stat-risk').innerText = state.stats.risk || 0;
+    document.getElementById('stat-risk').innerText = state.stats.high_risk_areas || 0;
   },
 
   getClassColor: function(cls) {
@@ -644,5 +644,40 @@ const varColors = {
 // Expose for Google Maps callback
 window.app = APP;
 
+// Theme toggle
+function setupThemeToggle() {
+  const toggle = document.getElementById('theme-toggle');
+  const html = document.documentElement;
+  const saved = localStorage.getItem('theme');
+  if (saved) {
+    html.setAttribute('data-theme', saved);
+  }
+  updateToggleIcon();
+
+  toggle.addEventListener('click', () => {
+    const current = html.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    updateToggleIcon();
+  });
+}
+
+function updateToggleIcon() {
+  const toggle = document.getElementById('theme-toggle');
+  const theme = document.documentElement.getAttribute('data-theme');
+  const icon = toggle.querySelector('i');
+  if (theme === 'light') {
+    icon.className = 'fa-solid fa-moon';
+    toggle.title = 'Switch to Dark Mode';
+  } else {
+    icon.className = 'fa-solid fa-sun';
+    toggle.title = 'Switch to Light Mode';
+  }
+}
+
 // Init DOM on load
-document.addEventListener('DOMContentLoaded', () => APP.init());
+document.addEventListener('DOMContentLoaded', () => {
+  setupThemeToggle();
+  APP.init();
+});

@@ -99,16 +99,27 @@ def classify_event(event_dict):
     model = load_or_train_model()
     
     # Extract features matching training data
+    # Use near_industrial/near_forest from caller if provided, otherwise derive
+    if 'near_industrial' in event_dict:
+        near_ind = int(event_dict['near_industrial'])
+    else:
+        near_ind = 1 if event_dict.get('nearest_facility_type') not in ['unknown', None] else 0
+    
+    if 'near_forest' in event_dict:
+        near_for = int(event_dict['near_forest'])
+    else:
+        near_for = 0
+
     features = {
         'frp': event_dict.get('frp', 50),
         'brightness': event_dict.get('brightness', 350),
         'firms_confidence': 2 if event_dict.get('firms_confidence') == 'high' else (1 if event_dict.get('firms_confidence') == 'nominal' else 0),
         'cluster_size': event_dict.get('cluster_size', 1),
-        'near_industrial': 1 if event_dict.get('nearest_facility_type') not in ['unknown', None] else 0,
-        'near_forest': 0, # Simplified for demo
+        'near_industrial': near_ind,
+        'near_forest': near_for,
         'frp_deviation': event_dict.get('frp_deviation', 1.0),
-        'hour_of_day': 12, # simplified
-        'is_monsoon_season': 0 # simplified
+        'hour_of_day': event_dict.get('hour_of_day', 12),
+        'is_monsoon_season': event_dict.get('is_monsoon_season', 0)
     }
     
     df = pd.DataFrame([features])

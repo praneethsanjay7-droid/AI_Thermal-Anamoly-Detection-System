@@ -27,15 +27,26 @@ def generate_report(event_dict) -> bytes:
     )
     normal_style = styles['Normal']
 
+    # Format Satellite Acquisition Time
+    raw_timestamp = event_dict.get('timestamp', '')
+    if raw_timestamp:
+        try:
+            dt = datetime.fromisoformat(str(raw_timestamp).replace('Z', '+00:00'))
+            acq_time_str = dt.strftime('%Y-%m-%d %H:%M:%S UTC')
+        except Exception:
+            acq_time_str = str(raw_timestamp)
+    else:
+        acq_time_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')
+
     # 1. Header
     elements.append(Paragraph(f"INCIDENT REPORT: {event_dict.get('id')}", title_style))
-    elements.append(Paragraph(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | CONFIDENTIAL", normal_style))
+    elements.append(Paragraph(f"Satellite Acquisition Time: {acq_time_str} | CONFIDENTIAL", normal_style))
     elements.append(Spacer(1, 20))
 
     # 2. Executive Summary
     elements.append(Paragraph("Executive Summary", header_style))
     summary_text = f"An event classified as {event_dict.get('classification')} with severity {event_dict.get('severity')} " \
-                   f"was detected at location ({event_dict.get('lat')}, {event_dict.get('lon')})."
+                   f"was detected at location ({event_dict.get('lat')}, {event_dict.get('lon')}) at acquisition time {acq_time_str}."
     elements.append(Paragraph(summary_text, normal_style))
     elements.append(Spacer(1, 15))
 
@@ -43,6 +54,7 @@ def generate_report(event_dict) -> bytes:
     elements.append(Paragraph("Thermal Intelligence", header_style))
     data = [
         ['Metric', 'Value'],
+        ['Acquisition Time', acq_time_str],
         ['Fire Radiative Power (MW)', str(event_dict.get('frp'))],
         ['Brightness', str(event_dict.get('brightness'))],
         ['Cluster Size', str(event_dict.get('cluster_size'))],

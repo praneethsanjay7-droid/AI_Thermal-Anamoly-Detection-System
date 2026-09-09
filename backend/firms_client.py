@@ -9,7 +9,7 @@ def fetch_india_firms(api_key, days=1):
     Fetches FIRMS NRT data for India.
     Falls back to empty list if API key is not valid or request fails.
     """
-    if not api_key or api_key == 'YOUR_NASA_FIRMS_KEY_HERE':
+    if not api_key or api_key in ['YOUR_NASA_FIRMS_KEY_HERE', 'YOUR_FIRMS_KEY_HERE', '']:
         print("No valid FIRMS API key provided, skipping real data fetch.")
         return []
     
